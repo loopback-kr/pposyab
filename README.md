@@ -1,38 +1,42 @@
 # BeautyGAN
 
-### 简介
+See [test.ipynb](test.ipynb)
+
+![](imgs/result.png)
+
+### Introduction
 
 BeautyGAN: Instance-level Facial Makeup Transfer with Deep Generative Adversarial Network
 
-官方网站：[http://liusi-group.com/projects/BeautyGAN](http://liusi-group.com/projects/BeautyGAN)
+Website: [http://liusi-group.com/projects/BeautyGAN](http://liusi-group.com/projects/BeautyGAN)
 
-提供了论文和数据集，但是没有开源代码，也没有提供训练好的模型
+Essays and datasets are provided, but no open source code and no trained models are provided.
 
-### 复现效果
+### Result
 
 ![](result.jpg)
 
-### 使用方法
+### Usage
 
 - Python3.6
-- TensorFlow1.9
+- TensorFlow 1.9
 
-下载训练好的模型
+Download pretrained model
 
 - [https://pan.baidu.com/s/1wngvgT0qzcKJ5LfLMO7m8A](https://pan.baidu.com/s/1wngvgT0qzcKJ5LfLMO7m8A)，7lip
 - [https://drive.google.com/drive/folders/1pgVqnF2-rnOxcUQ3SO4JwHUFTdiSe5t9](https://drive.google.com/drive/folders/1pgVqnF2-rnOxcUQ3SO4JwHUFTdiSe5t9)
 
-新建文件夹`model`，将模型文件放于其中
+Save pretrained model to `models`
 
-`imgs`中包括11张无妆图片，以及9张有妆图片
+`imgs` contains 11 non-makeup, 9 makeup images
 
-默认对`imgs/no_makeup/xfsy_0068.png`进行上妆
+`imgs/no_makeup/xfsy_0068.png` default non-makeup source image
 
 ```
 python main.py
 ```
 
-如果需要对其他人脸图片上妆，传入图片路径即可，推荐使用大小合适的正脸图片
+If you need to put makeup on someone else's face image, pass through the image path. Use a proper size face images.
 
 ```
 python main.py --no_makeup xxx.xxx
