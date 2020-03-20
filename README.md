@@ -1,6 +1,10 @@
 # BeautyGAN
 
-See [test.ipynb](test.ipynb)
+See [test.ipynb](test.ipynb), includes:
+- Face detection from random images
+- Facial landmarks detection
+- Face alignment
+- Inference
 
 ![](imgs/result.png)
 
