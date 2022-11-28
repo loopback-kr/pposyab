@@ -15,7 +15,7 @@ img = dlib.load_rgb_image('imgs/01.jpg')
 
 plt.figure(figsize=(16, 10))
 plt.imshow(img)
-
+plt.savefig('img.png')
 # # Find Faces
 
 img_result = img.copy()
@@ -34,7 +34,7 @@ for det in dets:
     ax.add_patch(rect)
 
 ax.imshow(img_result)
-
+plt.savefig('img_result.png')
 # # Find Landmarks 5points
 
 fig, ax = plt.subplots(1, figsize=(16, 10))
@@ -50,7 +50,7 @@ for detection in dets:
         ax.add_patch(circle)
 
 ax.imshow(img_result)
-
+plt.savefig('img_result2.png')
 # # Align Faces
 
 faces = dlib.get_face_chips(img, objs, size=256, padding=0.3)
@@ -61,7 +61,7 @@ axes[0].imshow(img)
 
 for i, face in enumerate(faces):
     axes[i+1].imshow(face)
-
+plt.savefig('Align.png')
 # # Functionalize
 
 def align_faces(img):
@@ -88,6 +88,7 @@ axes[0].imshow(test_img)
 for i, face in enumerate(test_faces):
     axes[i+1].imshow(face)
 
+plt.savefig('test.png')
 # # Load BeautyGAN Pretrained
 # - https://drive.google.com/drive/folders/1pgVqnF2-rnOxcUQ3SO4JwHUFTdiSe5t9
 
@@ -112,15 +113,16 @@ def postprocess(img):
 
 # # Load Images
 
-img1 = dlib.load_rgb_image('imgs/12.jpg')
+img1 = dlib.load_rgb_image('imgs/05.jpg')
 img1_faces = align_faces(img1)
 
-img2 = dlib.load_rgb_image('imgs/makeup/XMY-014.png')
+img2 = dlib.load_rgb_image('imgs/makeup/XMY-074.png')
 img2_faces = align_faces(img2)
 
 fig, axes = plt.subplots(1, 2, figsize=(16, 10))
 axes[0].imshow(img1_faces[0])
 axes[1].imshow(img2_faces[0])
+plt.savefig('face.png')
 
 # # Run
 
@@ -147,3 +149,4 @@ axes[1].set_title('Reference')
 axes[1].imshow(ref_img)
 axes[2].set_title('Result')
 axes[2].imshow(output_img)
+plt.savefig('final.png')
