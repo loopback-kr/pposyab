@@ -10,7 +10,7 @@ services:
     tty: true
     stdin_open: true
     ports:
-      - '58080:8080'
+      - '8080:8080'
     # deploy:
     #   resources:
     #     reservations:
