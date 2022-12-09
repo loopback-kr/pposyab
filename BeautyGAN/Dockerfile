@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:1.9.0-devel-py3
+FROM python:3.6.15
 
 WORKDIR /workspace
 
@@ -24,18 +24,14 @@ RUN mkdir -p ~/.config/pip \
 
 
 ### Setup requirements
-RUN apt update \
-    && apt install -y \
+RUN apt update && \
+    apt install -y \
+        cmake \
         libglu1-mesa-dev \
         libglib2.0-0 \
         libsm6 \
         libxext6 \
         libxrender-dev
-
-RUN apt update && \
-    apt install -y \
-        cmake \
-        python3-tk
 
 COPY requirements.txt requirements.txt
 

@@ -1,49 +1,64 @@
-# -*- coding: utf-8 -*-
-
-import tensorflow as tf
-import numpy as np
-import os
-import glob
+import json, numpy as np, tensorflow as tf, cv2 as cv, dlib
+from typing import List
+from os.path import join
+from glob import glob
 from imageio import imread, imsave
-import cv2
-import argparse
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import FileResponse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--no_makeup', type=str, default=os.path.join('imgs', 'no_makeup', 'xfsy_0068.png'), help='path to the no_makeup image')
-args = parser.parse_args()
+INPUT_SIZE = 256
 
-def preprocess(img):
-    return (img / 255. - 0.5) * 2
-
-def deprocess(img):
-    return (img + 1) / 2
-
-batch_size = 1
-img_size = 256
-no_makeup = cv2.resize(imread(args.no_makeup), (img_size, img_size))
-X_img = np.expand_dims(preprocess(no_makeup), 0)
-makeups = glob.glob(os.path.join('imgs', 'makeup', '*.*'))
-result = np.ones((2 * img_size, (len(makeups) + 1) * img_size, 3))
-result[img_size: 2 *  img_size, :img_size] = no_makeup / 255.
+# Initialize
+app = FastAPI()
 
 tf.reset_default_graph()
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
-
-saver = tf.train.import_meta_graph(os.path.join('model', 'model.meta'))
-saver.restore(sess, tf.train.latest_checkpoint('model'))
-
+saver = tf.train.import_meta_graph(join('models', 'model.meta'))
+saver.restore(sess, tf.train.latest_checkpoint('models'))
 graph = tf.get_default_graph()
-X = graph.get_tensor_by_name('X:0')
-Y = graph.get_tensor_by_name('Y:0')
-Xs = graph.get_tensor_by_name('generator/xs:0')
+X = graph.get_tensor_by_name('X:0') # source
+Y = graph.get_tensor_by_name('Y:0') # reference
+Xs = graph.get_tensor_by_name('generator/xs:0') # output
 
-for i in range(len(makeups)):
-    makeup = cv2.resize(imread(makeups[i]), (img_size, img_size))
-    Y_img = np.expand_dims(preprocess(makeup), 0)
-    Xs_ = sess.run(Xs, feed_dict={X: X_img, Y: Y_img})
-    Xs_ = deprocess(Xs_)
-    result[:img_size, (i + 1) * img_size: (i + 2) * img_size] = makeup / 255.
-    result[img_size: 2 * img_size, (i + 1) * img_size: (i + 2) * img_size] = Xs_[0]
+detector = dlib.get_frontal_face_detector()
+shape_predictor = dlib.shape_predictor('models/shape_predictor_5_face_landmarks.dat')
+
+def preprocess(img):
+    return img.astype(np.float32) / 127.5 - 1.
+    return (img / 255. - 0.5) * 2
+
+def postprocess(img):
+    return ((img + 1.) * 127.5).astype(np.uint8)
+    return (img + 1) / 2
+
+def align_faces(img):
+    dets = detector(img, 1)
+    objs = dlib.full_object_detections()
+    for detection in dets:
+        s = shape_predictor(img, detection)
+        objs.append(s)
+    faces = dlib.get_face_chips(img, objs, size=256, padding=0.35)
+    return faces
+
+@app.post('/predict')
+async def predict(in_files: List[UploadFile] = File(...)):
     
-imsave('result.jpg', result)
+    with open('result.jpg', 'wb+') as file_object:
+        file_object.write(in_files[0].file.read())
+
+    no_makeup = cv.resize(imread('result.jpg'), (INPUT_SIZE, INPUT_SIZE))
+    X_img = np.expand_dims(preprocess(no_makeup), 0)
+    makeups = glob(join('imgs', 'makeup', '*.*'))
+    result = np.ones((2 * INPUT_SIZE, (len(makeups) + 1) * INPUT_SIZE, 3))
+    result[INPUT_SIZE: 2 *  INPUT_SIZE, :INPUT_SIZE] = no_makeup / 255.
+
+    for i in range(len(makeups)):
+        makeup = cv.resize(imread(makeups[i]), (INPUT_SIZE, INPUT_SIZE))
+        Y_img = np.expand_dims(preprocess(makeup), 0)
+        Xs_ = sess.run(Xs, feed_dict={X: X_img, Y: Y_img})
+        Xs_ = postprocess(Xs_)
+        result[:INPUT_SIZE, (i + 1) * INPUT_SIZE: (i + 2) * INPUT_SIZE] = makeup / 255.
+        result[INPUT_SIZE: 2 * INPUT_SIZE, (i + 1) * INPUT_SIZE: (i + 2) * INPUT_SIZE] = Xs_[0]
+    imsave('result.jpg', result)
+    return FileResponse('result.jpg')

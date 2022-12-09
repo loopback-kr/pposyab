@@ -1,16 +1,18 @@
 version: '3.8'
 
 services:
-  engine-cpu:
-    container_name: engine-cpu-pposyab
+  beautygan:
+    container_name: pposyab-engine-cpu
     build:
       context: ${PWD}/BeautyGAN
       dockerfile: Dockerfile
-    hostname: engine-cpu-pposyab
+    hostname: pposyab-engine-cpu
     tty: true
     stdin_open: true
-    ports:
-      - '8080:8080'
+    networks:
+      - pposyab
+    expose:
+      - 8000:8000
     # deploy:
     #   resources:
     #     reservations:
@@ -19,7 +21,7 @@ services:
     #         count: all
     #         # device_ids: ['0']
     #         capabilities: [gpu]
-    shm_size: 2g
+    # shm_size: 2g
     volumes:
       - ${PWD}/BeautyGAN/:/workspace
     environment:
@@ -27,15 +29,19 @@ services:
       - DISPLAY=localhost:0.0
   
   webapp:
-    container_name: django-pposyab
+    container_name: pposyab-django
     build:
       context: ${PWD}/WebApp
       dockerfile: Dockerfile
-    hostname: django-pposyab
+    hostname: pposyab-django
     tty: true
     stdin_open: true
+    networks:
+      - pposyab
     ports:
-      - '8000:8000'
+      - 8000:8000
+    depends_on:
+      - beautygan
     # deploy:
     #   resources:
     #     reservations:
@@ -44,8 +50,13 @@ services:
     #         count: all
     #         # device_ids: ['0']
     #         capabilities: [gpu]
-    shm_size: 1g
+    # shm_size: 1g
     volumes:
       - ${PWD}/WebApp:/workspace
     environment:
       - TZ=Asia/Seoul
+    command: gunicorn WebApp.wsgi:application --bind 0.0.0.0:8000
+
+networks:
+  pposyab:
+    driver: bridge

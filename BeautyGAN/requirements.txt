@@ -1,3 +1,7 @@
-dlib
-imageio==2.9.0
-opencv-python==4.4.0.42
+dlib==19.24.0
+imageio==2.15.0
+opencv-python==4.6.0.66
+fastapi==0.83.0
+uvicorn[standard]==0.16.0
+tensorflow==1.9.0
+python-multipart==0.0.5
