@@ -1,4 +1,4 @@
-FROM python:3.11.0-slim
+FROM python:3.10.8
 
 WORKDIR /workspace
 
@@ -6,6 +6,7 @@ WORKDIR /workspace
 # Change default Shell to bash
 SHELL ["/bin/bash", "-c"]
 # Set Timezone
+ENV TZ=Asia/Seoul
 ARG DEBIAN_FRONTEND=noninteractive
 # Change bash shell prompt color of root account
 RUN sed -i 's/    xterm-color) color_prompt=yes;;/    #xterm-color) color_prompt=yes;;\n    xterm-color|*-256color) color_prompt=yes;;/' /root/.bashrc

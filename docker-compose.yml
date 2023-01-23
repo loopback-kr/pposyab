@@ -26,7 +26,8 @@ services:
       - ${PWD}/BeautyGAN/:/workspace
     environment:
       - TZ=Asia/Seoul
-      - DISPLAY=localhost:0.0
+      - DISPLAY=dev.loopback.kr:0.0
+    # command: uvicorn --host=0.0.0.0 --port 8000 main:app --reload
   
   webapp:
     container_name: pposyab-django
@@ -55,7 +56,7 @@ services:
       - ${PWD}/WebApp:/workspace
     environment:
       - TZ=Asia/Seoul
-    command: gunicorn WebApp.wsgi:application --bind 0.0.0.0:8000
+    # command: gunicorn WebApp.wsgi:application --bind 0.0.0.0:8000
 
 networks:
   pposyab:

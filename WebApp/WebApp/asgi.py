@@ -1,5 +1,5 @@
 """
-ASGI config for pposyab project.
+ASGI config for WebApp project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pposyab.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WebApp.settings')
 
 application = get_asgi_application()

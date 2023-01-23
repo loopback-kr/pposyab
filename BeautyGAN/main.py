@@ -25,12 +25,12 @@ detector = dlib.get_frontal_face_detector()
 shape_predictor = dlib.shape_predictor('models/shape_predictor_5_face_landmarks.dat')
 
 def preprocess(img):
-    return img.astype(np.float32) / 127.5 - 1.
     return (img / 255. - 0.5) * 2
+    return img.astype(np.float32) / 127.5 - 1.
 
 def postprocess(img):
-    return ((img + 1.) * 127.5).astype(np.uint8)
     return (img + 1) / 2
+    return ((img + 1.) * 127.5).astype(np.uint8)
 
 def align_faces(img):
     dets = detector(img, 1)
@@ -44,10 +44,11 @@ def align_faces(img):
 @app.post('/predict')
 async def predict(in_files: List[UploadFile] = File(...)):
     
-    with open('result.jpg', 'wb+') as file_object:
+    with open('input.jpg', 'wb+') as file_object:
         file_object.write(in_files[0].file.read())
-
-    no_makeup = cv.resize(imread('result.jpg'), (INPUT_SIZE, INPUT_SIZE))
+    img = imread('input.jpg')
+    img = align_faces(img)
+    no_makeup = cv.resize(img[0], (INPUT_SIZE, INPUT_SIZE))
     X_img = np.expand_dims(preprocess(no_makeup), 0)
     makeups = glob(join('imgs', 'makeup', '*.*'))
     result = np.ones((2 * INPUT_SIZE, (len(makeups) + 1) * INPUT_SIZE, 3))
